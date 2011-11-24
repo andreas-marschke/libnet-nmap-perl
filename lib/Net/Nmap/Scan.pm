@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Net::NMap::Scan - The actual execution of a scan
+Net::Nmap::Scan - The actual execution of a scan
 
 =head1 SYNOPSIS
 
- use Net::NMap::Scan;
+ use Net::Nmap::Scan;
 
- my $object = Net::NMap::Scan->new( themes => ['Defensive','Debug'], 
+ my $object = Net::Nmap::Scan->new( themes => ['Defensive','Debug'], 
                                     hosts => ['www.google.com','192.168.0.1/24'],
                                     to_file => '/tmp/nmap.log');
 
@@ -17,7 +17,7 @@ Net::NMap::Scan - The actual execution of a scan
 
 =cut
 
-package Net::NMap::Scan;
+package Net::Nmap::Scan;
 
 our $VERSION = '';
 

@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-Net::NMap::Scan::Theme::Defensive - A "Defensive" theme for Net::NMap
+Net::Nmap::Scan::Theme::Defensive - A "Defensive" theme for Net::Nmap::Scan
 
 =head1 SYNOPSIS
 
-  my $theme = Net::NMap::Scan::Theme->new();
+  my $theme = Net::Nmap::Scan::Theme->new();
   push @cmd,$theme->get_theme("Defensive");
 
 =head1 DESCRIPTION
@@ -16,14 +16,14 @@ methods on the hosts you plan to scan.
 
 =cut
 
-package Net::NMap::Scan::Theme::Defensive;
+package Net::Nmap::Scan::Theme::Defensive;
 
 our $VERSION = '0.001';
 
 use 5.010_000;
 
 use Moose;
-extents 'Net::NMap::Scan::Theme::Base';
+extents 'Net::Nmap::Scan::Theme::Base';
 
 sub BUILD {
   my $self = shift;

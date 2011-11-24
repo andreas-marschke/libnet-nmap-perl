@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-Net::NMap::Scan::Theme::Aggressive - An "Aggressive" theme for Net::NMap
+Net::Nmap::Scan::Theme::Aggressive - An "Aggressive" theme for Net::Nmap
 
 =head1 SYNOPSIS
 
-  my $theme = Net::NMap::Scan::Theme->new();
+  my $theme = Net::Nmap::Scan::Theme->new();
   push @cmd,$theme->get_theme("Aggressive");
 
 =head1 DESCRIPTION
@@ -16,14 +16,14 @@ an answer by the host
 
 =cut
 
-package Net::NMap::Scan::Theme::Defensive;
+package Net::Nmap::Scan::Theme::Defensive;
 
 our $VERSION = '0.001';
 
 use 5.010_000;
 
 use Moose;
-extents 'Net::NMap::Scan::Theme::Base';
+extents 'Net::Nmap::Scan::Theme::Base';
 
 sub BUILD {
   my $self = shift;

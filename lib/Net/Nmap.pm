@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Net::NMap - A wrapper around nmap
+Net::Nmap - A wrapper around nmap
 
 =head1 SYNOPSIS
 
- use Net::NMap;
+ use Net::Nmap;
 
- my $object = Net::NMap->new( hosts => @Hosts,
+ my $object = Net::Nmap->new( hosts => @Hosts,
                               ports => @ports,
                               isVerbose => 1,
                               scanTheme => "Defensive" );
@@ -20,7 +20,7 @@ Net::NMap - A wrapper around nmap
 
 =cut
 
-package Net::NMap;
+package Net::Nmap;
 
 our $VERSION = '';
 

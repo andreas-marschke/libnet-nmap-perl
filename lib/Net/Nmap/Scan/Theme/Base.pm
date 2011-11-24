@@ -2,15 +2,15 @@
 
 =head1 NAME
 
-Net::NMap::Scan::Theme::Base - The base theme for all Net::Nmap::Scan::Themes
+Net::Nmap::Scan::Theme::Base - The base theme for all Net::Nmap::Scan::Themes
 
 =head1 SYNOPSIS
 
   # You can base your own modules on this or others
-  package Net::NMap::Scan::Theme::Foo;
+  package Net::Nmap::Scan::Theme::Foo;
   use Moose;
 
-  extents 'Net::NMap::Scan::Theme::Base';
+  extents 'Net::Nmap::Scan::Theme::Base';
 
   @commands = ('-v','-sL','-p1-2000');
 
@@ -20,7 +20,7 @@ The Base theme should be the primer of all forthcoming themes
 
 =cut
 
-package Net::NMap::Scan::Theme::Base;
+package Net::Nmap::Scan::Theme::Base;
 
 our $VERSION = '';
 
@@ -32,7 +32,7 @@ use Moose;
 
 =head1 ATTRIBUTES
 
-Net::NMap::Scan::Theme::Base only defines a few base attributes you can change in your extended themes.
+Net::Nmap::Scan::Theme::Base only defines a few base attributes you can change in your extended themes.
 
 =head2 commands
 
@@ -61,9 +61,6 @@ You can set this to true if your command list needs root access
 
 =cut
 has 'need_root' => ( is => 'rw' , isa => 'Bool', default => 0 );
-
-
-
 
 no Moose;
 1;
