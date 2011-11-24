@@ -1,0 +1,67 @@
+=head1 NAME
+
+Net::Nmap - an easy modern way to parse nmap
+
+=cut
+
+=head1 SYNOPSIS
+
+=head2 Using Net::NMap::Scan
+
+ use Net::NMap::Scan;
+ my $object = Net::NMap::Scan->new( themes => ['Defensive','Debug'], 
+                                    hosts => ['www.google.com','192.168.0.1/24'],
+                                    to_file => '/tmp/nmap.log');
+
+ my $file = $object->run_scan(); # You can now Slurp this file into Net::Nmap::XML
+
+=head2 Using Net::Nmap::XML
+
+ # If you made an nmap scan before and want to analyze it
+ my $nmap_xml = Net::Nmap::XML->new(plugin => qw(banner));
+ $nmap_xml->parse_file('parseable.xml');
+	
+ # Now you can export it to Nagios::Objects to have these 
+ # hosts into your monitoring
+ my $nagobj = $object->dump_nagios_object();
+ print $nagobj->dump();
+
+=cut 
+
+=head2 Creating a Net::NMap::Scan::Theme
+
+ package Net::NMap::Scan::Theme::Defensive;
+
+ our $VERSION = '0.001';
+
+ use Moose;
+ extents 'Net::NMap::Scan::Theme::Base';
+
+ sub BUILD {
+   my $self = shift;
+   $self->commands = ('-v','-sP','--traceroute');
+   $self->compat = 5.0;
+   $self->need_root = 0;
+ }
+ no Moose;
+ 1;
+
+
+=head1 ABOUT
+
+I decided to write this module because I was not satisfied with the existing
+solutions such as Nmap::Scanner or Nmap::Parser which appeared to restrict the
+way I can digest the information that is laid before me. 
+
+With this handy library of , for the most part, autonomous Modules you can:
+- parse nmaps xml-output
+- run nmap and directly use it's xml
+- create statistics (planned)
+- integrate them usefully in your own work (nmap2nagios would be one such thing)
+
+=head1 HELP
+
+Fork, Hack, PullRequest. Have fun with it.
+Please report if you integrated it in your work. :)
+
+=cut 
