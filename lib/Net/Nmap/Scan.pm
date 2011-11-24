@@ -23,9 +23,10 @@ our $VERSION = '';
 
 use 5.010_000;
 
-use Carp;
-use IPC::Run;
+use Carp qw(carp croak);
+use IPC::Run qw(run);
 use Moose;
+use Net::IP;
 use Net::DNS::Resolver;
 use Net::DNS;
 use Net::Nmap::Scan::Theme;
@@ -39,7 +40,7 @@ use Net::Nmap::Scan::Theme;
 Path to the nmap binary as determined by C<get_nmap_bin>.
 
 =cut
-has 'nmap_bin' => ( is => 'r' , isa => 'Str');
+has 'nmap_bin' => ( is => 'ro' , isa => 'Str');
 
 
 =head2 cmd
@@ -47,23 +48,24 @@ has 'nmap_bin' => ( is => 'r' , isa => 'Str');
 The accumulated commandline executed through IPC::Run.
 
 =cut
-has 'cmd' => ( is => 'r' , isa => 'ArrayRef[Str]');
+has 'cmd' => ( is => 'ro' , isa => 'ArrayRef[Str]');
 
 =head2 hosts
 
 An arrayref of hosts.
 NOTE: This will change in the course of executing C<run_scan> since C<run_scan>
 uses C<validate_host> to check wether or not the hosts in @hosts are valid or not.
+Default value is ['localhost']
 
 =cut
-has 'hosts' => ( is => 'rw' , isa => 'ArrayRef[Str]' default => ['localhost']);
+has 'hosts' => ( is => 'rw' , isa => 'ArrayRef[Str]', default => sub {['localhost']});
 
 =head2 themes
 
 We store the chosen themes in an arrayref to use more than one theme at a time.
 
 =cut
-has 'themes' => (is => 'rw', isa => 'ArrayRef[Str]', required => 1);
+has 'themes' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{['Base']});
 
 =head2 version
 
@@ -71,7 +73,7 @@ Holds the version of nmap(1) as a float for comparison agains the version set
 in the themes.
 
 =cut
-has 'version' => ( is => 'rw' , isa => 'float');
+has 'version' => ( is => 'rw' , isa => 'Num');
 
 =head2 to_file
 
@@ -94,8 +96,8 @@ Sets the version and path of nmap available on this machine.
 =cut
 sub BUILD {
   my $self = shift;
-  $self->get_nmap_bin();
-  $self->get_version();
+  croak 'There is no nmap binary on this machine!' unless defined $self->get_nmap_bin();
+  $self->version($self->get_nmap_version());
 }
 
 =head2 run_scan
@@ -110,32 +112,31 @@ sub run_scan {
   my $self = shift;
   my $theme = Net::Nmap::Scan::Theme->new();
 
-  push $self->cmd,$self->nmap_bin;
+  push @{$self->cmd},$self->nmap_bin();
   $self->hosts = $self->validate_hosts($self->hosts);
 
   # push themes onto the command stack
-  if ($UID eq 0) {
+  if ($ENV{UID} eq 0) {
     foreach ($self->themes) {
       if ($theme->compat($_) >= $self->version) {
-	push $self->cmd,$theme->get_theme($_);
+	push @{$self->cmd},$theme->get_theme($_);
       }
     }
   } else {
     foreach ($self->themes) {
       if ($theme->compat($_) >= $self->version) {
-	push $self->cmd,$theme->get_theme($_) if (!$theme->need_root($_));
+	push @{$self->cmd},$theme->get_theme($_) if (!$theme->need_root($_));
       }
     }
   }
-  push $self->cmd,$self->hosts;
+  push @{$self->cmd},$self->hosts;
   my ( $in, $out, $err ) = "";
   if (defined $self->to_file) {
-    push $self->cmd,('-oX',$self->to_file);
+    push @{$self->cmd},('-oX',$self->to_file);
   } else {
-    push $self->cmd,('-oX',"-");
+    push @{$self->cmd},('-oX',"-");
   }
-  run \$self->cmd, \$in, \$out, \$err;
-
+  run (\$self->cmd, \$in, \$out, \$err);
   return defined $self->to_file ? $self->to_file : $out;
 }
 
@@ -150,11 +151,12 @@ Removes invalid hosts from the list of hosts and returns only valid hosts.
 
 sub validate_hosts {
   my $self = shift;
+  my @hosts;
   my $res = Net::DNS::Resolver->new;
   foreach my $host ($self->hosts) {
     if (! new Net::IP($host) ) {
       if (!$res->search('$host')) {
-	$self->hosts = grep (!/^$host$/, $self->hosts );
+	  $self->hosts(grep (!/^($host)$/, $self->hosts));
       }
     }
   }
@@ -162,7 +164,7 @@ sub validate_hosts {
 
 =head1 get_nmap_version
 
-  Gets the installed version of nmap
+Gets the installed version of nmap and sets it in $self->version;
 
 =cut
 
@@ -170,17 +172,16 @@ sub get_nmap_version {
   my $self = shift;
   my @cmd = qw(nmap --version);
   my ( $in, $out, $err ) = "";
-  run \@cmd, \$in, \$out, \$err;
-  while (<$out>) {
-    if (m/^Nmap\sversion\s([0-9.]*)/) {
-      $self->version = $1;
-    }
+  run (\@cmd, \$in, \$out, \$err);
+  if ($out =~ m/version\s([0-9.]*)/) {
+    return $1;
   }
 }
 
 =head1 get_nmap_bin
 
-  Run which(1) to search for the nmap executable in your $PATH.
+Run which(1) to search for the nmap executable in your $PATH.
+Returns undef if no nmap binary was found
 
 =cut
 
@@ -188,10 +189,10 @@ sub get_nmap_bin {
   my $self = shift;
   my @cmd = qw(which nmap);
   my ( $in, $out, $err ) = "";
-  run \@cmd, \$in, \$out, \$err;
+  run (\@cmd, \$in, \$out, \$err);
   chomp $out;
   if ($out =~ m/^$/) {
-    cloak 'No nmap binary on this host!';
+    return undef;
   } else {
     return $out;
   }
