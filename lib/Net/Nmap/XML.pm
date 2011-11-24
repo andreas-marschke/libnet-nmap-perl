@@ -51,7 +51,7 @@ finger.nse.
 
 =cut
 
-has 'plugin' => ( is => 'rw' , isa => 'ArrayRef[Str]', require => 0);
+has 'plugin' => ( is => 'rw' , isa => 'ArrayRef[Str]', required => 0);
 
 =head2 content
 
@@ -60,7 +60,7 @@ string that was parsed by Net::Nmap::XML.
 
 =cut
 
-has 'content' => ( is => 'r' , isa => 'Str');
+has 'content' => ( is => 'ro' , isa => 'Str');
 
 
 =head2 parse_file($filepath)
