@@ -48,7 +48,7 @@ invalid or malicious content
 
 =cut
 
-has 'hosts' => ( is => 'rw' , isa => 'ArrayRef[Str]', require => 1);
+has 'hosts' => ( is => 'rw' , isa => 'ArrayRef[Str]', required => 1);
 
 
 =head2 ports
